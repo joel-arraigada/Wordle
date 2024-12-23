@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 
@@ -21,15 +23,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  // var current = WordPair.random().asUpperCase;
-
-  // void getAnotherWord() {
-  //   current = WordPair.random().asUpperCase;
-  //   notifyListeners();
-  // }
-}
-
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -42,11 +35,16 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int guesses = 5;
   late String currentWord;
+  late List<List<TextEditingController>> textControllers;
 
   @override
   void initState() {
     super.initState();
     currentWord = getRandomWord(); //Initialize with a random word
+    textControllers = List.generate(
+        guesses,
+        (index) => List.generate(
+            currentWord.length, (index) => TextEditingController()));
   }
 
   String getRandomWord() {
@@ -56,39 +54,43 @@ class _MyHomePageState extends State<MyHomePage> {
   void generateNewWord() {
     setState(() {
       currentWord = getRandomWord(); //Update the current word;
+      textControllers = List.generate(
+          guesses,
+          (index) => List.generate(
+              currentWord.length, (index) => TextEditingController()));
     });
   }
 
-  Widget generateColumOfBoxes(int amount) {
+  Widget generateColumnOfBoxes() {
     return Column(
       children: List.generate(guesses, (index) {
-        return generateBoxes(amount);
+        print("column");
+        return generateBoxes(index);
       }),
     );
   }
 
-  Widget generateBoxes(int amount) {
+  Widget generateBoxes(int rowIndex) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(amount, (index) {
-          return generateBox();
+        children: List.generate(currentWord.length, (index) {
+          return Container(width: 50, child: generateBox(rowIndex, index));
         }),
       ),
     );
   }
 
-  Widget generateBox() {
+  Widget generateBox(int rowIndex, int columnIndex) {
     final theme = Theme.of(context);
     return Card(
       elevation: 4,
       color: theme.colorScheme.inversePrimary,
       margin: const EdgeInsets.all(4.0),
-      child: Container(
-        width: 60,
-        height: 60,
-        alignment: Alignment.center,
+      child: TextField(
+        controller: textControllers[rowIndex][columnIndex],
       ),
     );
   }
@@ -109,24 +111,26 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(48.0),
-            child: ElevatedButton(
-              onPressed: generateNewWord,
-              child: Text(
-                'Next',
-                style: TextStyle(fontSize: 30),
+      body: Center(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(48.0),
+              child: ElevatedButton(
+                onPressed: generateNewWord,
+                child: Text(
+                  'Next',
+                  style: TextStyle(fontSize: 30),
+                ),
               ),
             ),
-          ),
-          Center(child: generateColumOfBoxes(currentWord.length)),
-          Text(
-            currentWord,
-            style: TextStyle(fontSize: 40),
-          )
-        ],
+            Center(child: generateColumnOfBoxes()),
+            Text(
+              currentWord,
+              style: TextStyle(fontSize: 40),
+            )
+          ],
+        ),
       ),
     );
   }
