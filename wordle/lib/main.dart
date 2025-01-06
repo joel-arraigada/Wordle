@@ -35,8 +35,8 @@ class MyApp extends StatelessWidget {
 //   const MyApp({super.key});
 
 //   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
+//   Widget build(BuildContxt context) {
+//     return MaterialApp(  
 //       title: 'Wordle Demo',
 //       theme: ThemeData(
 //         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0x002c7aaF)),
